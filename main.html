@@ -1,0 +1,18 @@
+<script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+<script>
+    const socket = io();
+    
+    socket.on('game_data', function(data) {
+        document.getElementById('question').innerText = data.question;
+        // обновить интерфейс
+    });
+    
+    socket.on('update_scores', function(scores) {
+        document.getElementById('score-red').innerText = scores.red;
+        document.getElementById('score-blue').innerText = scores.blue;
+    });
+    
+    function sendAnswer(answer) {
+        socket.emit('answer', {pin: 'ABC123', answer: answer});
+    }
+</script>
