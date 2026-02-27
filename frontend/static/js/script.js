@@ -1,7 +1,35 @@
-const socket = io(); // подключаемся к Flask-SocketIO
+const socket = io(); 
 let currentPin = null;
 
-// привязка кнопок
+let timerInterval = null;
+let timeLeft = 30;
+
+function startTimer(pin, currentTeam) {
+    if (timerInterval) clearInterval(timerInterval);
+    timeLeft = 30;
+    document.getElementById('timer').innerText = timeLeft;
+    
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = timeLeft;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            socket.emit('timeout', { pin: pin });
+        }
+    }, 1000);
+}
+
+
+function sendAnswer(choice, pin, team) {
+    clearInterval(timerInterval);
+    socket.emit('answer', { choice, pin, team });
+    
+
+    document.querySelectorAll('.answer-btn').forEach(btn => btn.disabled = true);
+}
+
+
 document.getElementById('enter_game').onclick = enter_game;
 document.getElementById('start_game').onclick = create;
 
@@ -11,7 +39,7 @@ function enter_game() {
 
 function join() {
     const name = document.getElementById('player_name').value.trim();
-    const pin = document.getElementById('pin').value.trim(); // id из index.html
+    const pin = document.getElementById('pin').value.trim(); 
 
     if (!name || !pin) {
         alert('Введи имя и PIN');
@@ -33,7 +61,7 @@ function create() {
     socket.emit('create_game', { theme, q_num });
 }
 
-// лог для отладки
+
 socket.on('connect', () => {
     console.log('Socket.IO подключён, id =', socket.id);
 });
@@ -45,7 +73,6 @@ function renderLobbyPreview(game) {
     const teamA = (game.teams && game.teams.A) || [];
     const teamB = (game.teams && game.teams.B) || [];
 
-    // запоминаем текущую игру
     currentPin = game.pin || currentPin;
 
     box.style.display = 'block';
@@ -112,13 +139,24 @@ function renderQuestion(data) {
             `).join('')}
         </div>
     `;
+
+    document.getElementById('current-team').innerText = `Ход команды ${data.current_team}`;
+    
+
+    startTimer(data.pin, data.current_team);
+    
+
+    const isMyTeam = (userTeam === data.current_team);
+    document.querySelectorAll('.answer-btn').forEach(btn => {
+        btn.disabled = !isMyTeam;
+    });
 }
 
 function sendAnswer(choice, pin, team) {
     socket.emit('answer', { choice, pin, team });
 }
 
-// когда сервер шлёт данные игры
+
 socket.on('game_data', (data) => {
     console.log('Данные игры от сервера:', data);
     currentPin = data.pin || currentPin;
@@ -140,7 +178,6 @@ socket.on('game_created', (data) => {
     alert('PIN вашей игры: ' + data.pin);
 });
 
-// когда сервер обновляет счёт
 socket.on('update_scores', (scores) => {
     console.log('Новый счёт:', scores);
 });

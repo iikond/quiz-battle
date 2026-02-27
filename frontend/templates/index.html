@@ -9,14 +9,27 @@
 <body>
 
   <img src="/static/images/corgi.png" alt="Corgi" class="corgi-image">
+
+  <div class="game-header">
+    <div id="timer" class="timer">00</div>
+    <div id="current-team" class="current-team">Ход команды </div>
+  </div>
+
   <style>
-  .corgi-image {
-    position: absolute;   /* вырываем из потока */
-    top: 10px;            /* отступ сверху */
-    left: 10px;           /* отступ слева */
-    width: 250px;
-    height: 250px;
-    z-index: 1000;        /* чтобы быть поверх всего */
+.answers-grid {
+    margin-top: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.corgi-image {
+    position: fixed;
+    top: 60px;             
+    left: 10px;
+    width: 100px;
+    height: 100px;
+    z-index: 900;    
+    filter: drop-shadow(0 0 10px rgba(255, 42, 42, 0.3));
 }
   </style>
 
@@ -26,7 +39,7 @@
           <input id="player_name" placeholder="Введи имя">
           <input id="pin" placeholder="Введи PIN">
           <button id="enter_game" onclick="enter_game()">Присоединиться</button>
-          <!-- сюда твои input'ы для имени и PIN -->
+
         </div>
       
         <div class="card">
@@ -34,16 +47,16 @@
           <input id="host_theme" placeholder="Введите тему">
           <input id="host_num_questions" placeholder="Введите количество вопросов">
           <button id="start_game">Создать игру</button>
-          <!-- сюда input для темы и select для количества вопросов -->
+
         </div>
       </div>
 
       <div id="lobby_preview" class="card lobby-main" style="margin-top: 24px; display: none;">
-        <!-- сюда скрипт будет подставлять состав команд и тему -->
+
       </div>
 
       <div id="game_view" class="card game-card" style="margin-top: 24px; display: none;">
-        <!-- сюда скрипт будет показывать текущий вопрос -->
+
       </div>
       
     <script src="/static/js/script.js"></script>

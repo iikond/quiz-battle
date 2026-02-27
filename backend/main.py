@@ -21,9 +21,9 @@ USE_AI = True
 
 try:
     giga = GigaChat(credentials=GIGACHAT_TOKEN, model="GigaChat-2" ,verify_ssl_certs=False)
-    print("✅ GigaChat подключён")
+    print("GigaChat подключён")
 except Exception as e:
-    print(f"❌ Ошибка подключения GigaChat: {e}")
+    print(f"Ошибка подключения GigaChat: {e}")
     USE_AI = False
     giga = None
 
@@ -258,6 +258,31 @@ def handle_start_game(data):
         broadcast=True,
     )
 
+@socketio.on('timeout')
+def handle_timeout(data):
+    pin = data.get('pin')
+    game = games.get(pin)
+    if not game:
+        return
+
+    game["current_question_index"] += 1
+    game["current_team"] = "B" if game["current_team"] == "A" else "A"
+    
+    if game["current_question_index"] >= len(game["questions"]):
+        emit('game_finished', {'scores': game['scores']}, room=pin)
+        return
+    
+    q = game["questions"][game["current_question_index"]]
+    emit('question', {
+        "pin": pin,
+        "text": q["text"],
+        "options": q["options"],
+        "current_team": game["current_team"],
+        "scores": game["scores"],
+        "question_index": game["current_question_index"],
+        "total_questions": len(game["questions"]),
+    }, room=pin)
+
 @socketio.on('answer')
 def handle_answer(data):
     pin = (data.get('pin') or '').strip().upper()
@@ -297,7 +322,7 @@ def handle_answer(data):
             },
             broadcast=True,
         )
-        print(f"🏁 Игра {pin} завершена")
+        print(f"Игра {pin} завершена")
         return
 
     next_q = game["questions"][game["current_question_index"]]
