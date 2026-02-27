@@ -32,18 +32,15 @@
    cd corgi-quiz-battle
 
    Установи зависимости
-   bash
 
    pip install -r requirements.txt
 
     Настрой GigaChat (опционально)
     Получи токен на developers.sber.ru и создай файл .env:
-    text
 
     GIGACHAT_TOKEN=ваш_токен_сюда
 
     Запусти сервер
-    bash
 
     python backend/main.py
 
